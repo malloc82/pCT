@@ -1,6 +1,6 @@
-(ns util.scheduler-test
+(ns pct.util.scheduler-test
   (:require [clojure.core.async :as a]
-            [util.scheduler :as s]))
+            [pct.util.scheduler :as s]))
 
 
 (def scheduler (s/newScheduler))

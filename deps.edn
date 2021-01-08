@@ -37,7 +37,7 @@
            {:extra-deps {cider/cider-nrepl             {:mvn/version "0.25.5"}
                          refactor-nrepl/refactor-nrepl {:mvn/version "2.5.0"}
                          nrepl/nrepl                   {:mvn/version "0.8.3"}}
-            :exec-fn    util.repl/start-repl
+            :exec-fn    pct.util.repl/start-repl
             :exec-args  {:interactive true
                          :port 8002
                          :middleware [cider.nrepl/cider-middleware,
@@ -52,7 +52,7 @@
            {:extra-deps {cider/cider-nrepl             {:mvn/version "0.25.5"}
                          refactor-nrepl/refactor-nrepl {:mvn/version "2.5.0"}
                          nrepl/nrepl                   {:mvn/version "0.8.3"}}
-            :exec-fn    util.repl/start-repl
+            :exec-fn    pct.util.repl/start-repl
             :exec-args  {:interactive true
                          :port 9000
                          :middleware [cider.nrepl/cider-middleware,

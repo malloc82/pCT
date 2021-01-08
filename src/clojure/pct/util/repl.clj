@@ -1,4 +1,4 @@
-(ns util.repl
+(ns pct.util.repl
   (:require [nrepl.cmdline]
             [clojure.core.async :as a]
             [taoensso.timbre :as timbre]
@@ -40,6 +40,7 @@
                             ;; :spit (rotor/rotor-appender {:path "./log/messages.log"})
                             :spit (log/async-appender {:channel log-chan :path "./log/messages.log"})
                             }})
+    (timbre/info " >>>>>>>>>>>>>>> * new repl starts at port" port "* <<<<<<<<<<<<<<<")
     (nrepl.cmdline/set-signal-handler! "INT" handle-interrupt)
     (nrepl.cmdline/dispatch-commands options)
     (catch clojure.lang.ExceptionInfo ex
@@ -55,7 +56,7 @@
   [& args]
   (try
     (nrepl.cmdline/set-signal-handler! "INT" handle-interrupt)
-    (let [[options _args] (r/args->cli-options args)]
+    (let [[options _args] (nrepl.cmdline/args->cli-options args)]
       (nrepl.cmdline/dispatch-commands options))
     (catch clojure.lang.ExceptionInfo ex
       (let [{:keys [::kind ::status]} (ex-data ex)]

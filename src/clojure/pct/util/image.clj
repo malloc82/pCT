@@ -1,4 +1,4 @@
-(ns util.image
+(ns pct.util.image
   (:use clojure.core)
   (:require [uncomplicate.neanderthal
              [core :refer :all]
