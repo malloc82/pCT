@@ -24,12 +24,12 @@
   (java.net.InetAddress/getLocalHost))
 
 (defn memorySize []
-  (loop [n ^double (double (.maxMemory (Runtime/getRuntime)))
+  (loop [m ^double (double (.maxMemory (Runtime/getRuntime)))
          s ["B" "KB" "MB" "GB" "TB"]]
     (let [unit (first s)]
-      (if (or (= unit "TB") (< n 1024))
-        (println (format "%n%s" n unit))
-        (recur (/ n 1024) (rest s))))))
+      (if (or (= unit "TB") (< m 1024))
+        (println (format "%.1f %s" m unit))
+        (recur (/ m 1024) (rest s))))))
 
 (defn fill-sorted-seq
   "Assuming s is an sorted integer sequence, return a seq with missing numbers"
@@ -448,7 +448,7 @@
     (loop [i ^int (int 0)
            sum ^double (double 0.0)]
       (if (< i len)
-        (let [x-m ^double (double (- (aget arr i) m))]
+        (let [x-m (- (double (aget arr i)) ^double m)]
          (recur (unchecked-inc-int i) (+ sum (* x-m x-m))))
         (Math/sqrt ^double (/ sum (unchecked-dec-int len)))))))
 
@@ -457,7 +457,7 @@
 
 (defmethod histogram (Class/forName "[I")
   [^ints arr & {:keys [bins]}]
-  (let [histogram ^ints (or bins (int-array (inc (first (max-min arr))) 0))
+  (let [histogram ^ints (or bins (int-array (inc ^int (first (max-min arr))) 0))
         len       ^int  (alength arr)]
     ;; histogram
     (loop [i ^int (int 0)]
@@ -496,12 +496,13 @@
 
 (defn histogram-parallel
   [^ints arr & {:keys [bins n]}]
-  (let [histogram  ^ints (or bins (int-array (inc (first (max-min arr))) 0))
+  (let [n          ^int  (int (or n 1))
+        histogram  ^ints (or bins (int-array (inc ^int (first (max-min arr))) 0))
         len        ^int  (alength arr)
         block-size ^int  (int (Math/ceil (/ len n)))
         res (vec (repeatedly (int n) chan))
-        hist-fn (fn [idx [start length]]
-                  (let [end   ^int  (int (+ start length))
+        hist-fn (fn [idx [^int start ^int length]]
+                  (let [end (+ start length)
                         local-hist ^ints (int-array (alength ^ints histogram) 0)]
                     (loop [i ^int (int start)]
                       (if (< i end)
