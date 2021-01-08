@@ -23,6 +23,14 @@
 (defn localhost []
   (java.net.InetAddress/getLocalHost))
 
+(defn memorySize []
+  (loop [n ^double (double (.maxMemory (Runtime/getRuntime)))
+         s ["B" "KB" "MB" "GB" "TB"]]
+    (let [unit (first s)]
+      (if (or (= unit "TB") (< n 1024))
+        (println (format "%n%s" n unit))
+        (recur (/ n 1024) (rest s))))))
+
 (defn fill-sorted-seq
   "Assuming s is an sorted integer sequence, return a seq with missing numbers"
   [s]

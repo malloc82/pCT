@@ -39,7 +39,7 @@
                          nrepl/nrepl                   {:mvn/version "0.8.3"}}
             :exec-fn    pct.util.repl/start-repl
             :exec-args  {:interactive true
-                         :port 8002
+                         :port 8000
                          :middleware [cider.nrepl/cider-middleware,
                                       refactor-nrepl.middleware/wrap-refactor]
                          :color true
