@@ -38,6 +38,12 @@
                             :spit (pct.logging/async-appender {:channel log-chan :path "./log/messages.log"})
                             }})
     (taoensso.timbre/info " >>>>>>>>>>>>>>> * new repl starts at port" port "* <<<<<<<<<<<<<<<")
+    ;; exception handler setting for core.async threads
+    (Thread/setDefaultUncaughtExceptionHandler
+     (reify Thread$UncaughtExceptionHandler
+       (uncaughtException [_ thread ex]
+         (taoensso.timbre/error ex (format "Uncaught exception on [%s]" (.getName thread))))))
+
     (nrepl.cmdline/set-signal-handler! "INT" handle-interrupt)
     (nrepl.cmdline/dispatch-commands options)
     (catch clojure.lang.ExceptionInfo ex
