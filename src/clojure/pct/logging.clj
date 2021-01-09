@@ -1,5 +1,5 @@
 (ns pct.logging
-  (:require [clojure.string :as str]
+  (:require clojure.pprint
             [taoensso.timbre :as timbre]
             [taoensso.encore :as enc]
             [clojure.java.io :as io]
@@ -39,3 +39,7 @@
        (fn [data]
          (async/put! channel (:output_ data))))})
 
+
+(defn pformat [& args]
+  (with-out-str
+    (apply clojure.pprint/pprint args)))
