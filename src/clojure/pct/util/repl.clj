@@ -1,10 +1,7 @@
 (ns pct.util.repl
-  (:require [nrepl.cmdline]
-            [clojure.core.async :as a]
-            [taoensso.timbre :as timbre]
-            [pct.logging :as log]))
+  (:require nrepl.cmdline pct.logging clojure.core.async taoensso.timbre clojure.core.async))
 
-(defonce ^:private log-chan (a/chan 64))
+(defonce ^:private log-chan (clojure.core.async/chan 64))
 
 ;; Copied from nrepl.cmdline
 (defn- clean-up-and-exit
@@ -30,7 +27,7 @@
   [{:keys [interactive connect color bind host port ack-port handler middleware transport verbose repl-fn greeting]
     :as options}]
   (try
-    (timbre/merge-config! {:timestamp-opts {:pattern "yyyy-MM-dd @ HH:mm:ss Z"
+    (taoensso.timbre/merge-config! {:timestamp-opts {:pattern "yyyy-MM-dd @ HH:mm:ss Z"
                                             :locale  :jvm-default
                                             :timezone (java.util.TimeZone/getTimeZone "America/Chicago")}
                            :appenders
@@ -38,9 +35,9 @@
                             :println nil
                             ;; :spit (appenders/spit-appender {:fname "./log/timbre-spit.log"})
                             ;; :spit (rotor/rotor-appender {:path "./log/messages.log"})
-                            :spit (log/async-appender {:channel log-chan :path "./log/messages.log"})
+                            :spit (pct.logging/async-appender {:channel log-chan :path "./log/messages.log"})
                             }})
-    (timbre/info " >>>>>>>>>>>>>>> * new repl starts at port" port "* <<<<<<<<<<<<<<<")
+    (taoensso.timbre/info " >>>>>>>>>>>>>>> * new repl starts at port" port "* <<<<<<<<<<<<<<<")
     (nrepl.cmdline/set-signal-handler! "INT" handle-interrupt)
     (nrepl.cmdline/dispatch-commands options)
     (catch clojure.lang.ExceptionInfo ex
