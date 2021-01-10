@@ -23,21 +23,25 @@
           (System/exit 0)))
       (System/exit 0))))
 
+(defmacro set-var [Var Val]
+  `(set! ~Var ~Val))
+
 (defn start-repl
-  [{:keys [interactive connect color bind host port ack-port handler middleware transport verbose repl-fn greeting]
+  [{:keys [interactive connect color bind host port ack-port handler middleware transport verbose repl-fn greeting global-vars]
     :as options}]
   (try
     (taoensso.timbre/merge-config! {:timestamp-opts {:pattern "yyyy-MM-dd @ HH:mm:ss Z"
-                                            :locale  :jvm-default
-                                            :timezone (java.util.TimeZone/getTimeZone "America/Chicago")}
-                           :appenders
-                           {;; :println (timbre/println-appender {:stream :auto})
-                            :println nil
-                            ;; :spit (appenders/spit-appender {:fname "./log/timbre-spit.log"})
-                            ;; :spit (rotor/rotor-appender {:path "./log/messages.log"})
-                            :spit (pct.logging/async-appender {:channel log-chan :path "./log/messages.log"})
-                            }})
+                                                     :locale  :jvm-default
+                                                     :timezone (java.util.TimeZone/getTimeZone "America/Chicago")}
+                                    :appenders
+                                    { ;; :println (timbre/println-appender {:stream :auto})
+                                     :println nil
+                                     ;; :spit (appenders/spit-appender {:fname "./log/timbre-spit.log"})
+                                     ;; :spit (rotor/rotor-appender {:path "./log/messages.log"})
+                                     :spit (pct.logging/async-appender {:channel log-chan :path "./log/messages.log"})
+                                     }})
     (taoensso.timbre/info " >>>>>>>>>>>>>>> * new repl starts at port" port "* <<<<<<<<<<<<<<<")
+
     ;; exception handler setting for core.async threads
     (Thread/setDefaultUncaughtExceptionHandler
      (reify Thread$UncaughtExceptionHandler
@@ -45,6 +49,16 @@
          (taoensso.timbre/error ex (format "Uncaught exception on [%s]" (.getName thread))))))
 
     (nrepl.cmdline/set-signal-handler! "INT" handle-interrupt)
+
+    (when global-vars
+      (taoensso.timbre/info global-vars)
+      (eval (conj (map (fn [[k v]]
+                         (if (resolve k)
+                           `(set! ~k ~v)
+                           (taoensso.timbre/info  (format "Can't resolve %s ... skip" k))))
+                       global-vars)
+                  'do )))
+
     (nrepl.cmdline/dispatch-commands options)
     (catch clojure.lang.ExceptionInfo ex
       (let [{:keys [::kind ::status]} (ex-data ex)]
